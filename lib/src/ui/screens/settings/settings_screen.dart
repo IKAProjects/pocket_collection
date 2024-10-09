@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:pocket_collection/src/infrastructure/resources/app_colors.dart';
 import 'package:pocket_collection/src/infrastructure/resources/app_styles.dart';
 import 'package:pocket_collection/src/ui/screens/settings/widgets/row_widget.dart';
-
 import '../../../../gen/assets.gen.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -53,7 +52,11 @@ class SettingsScreen extends StatelessWidget {
           SizedBox(height: 16.h),
           RowWidget(
             icon: Assets.svg.share,
-            name: 'Share',  onTap: (){},
+            name: 'Share',
+            onTap: () async{
+
+             await Share.share('Check out this app', subject: 'something');
+            },
           ),
         ],
       ),

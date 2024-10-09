@@ -37,8 +37,8 @@ class CollectionWidget extends StatelessWidget {
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(16.r),
-                  child: Image.file(
-                    File(image),
+                  child: Image.asset(
+                 image,
                     fit: BoxFit.cover,
                     width: 173.w,
                     height: 168.h,
@@ -50,7 +50,6 @@ class CollectionWidget extends StatelessWidget {
                   child: Container(
                     padding: EdgeInsets.symmetric(horizontal: 8.w),
                     height: 30.h,
-                    width: 106.w,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8.r),
                       color: Colors.white,
@@ -60,9 +59,9 @@ class CollectionWidget extends StatelessWidget {
                         Container(
                           height: 8.h,
                           width: 8.w,
-                          decoration: const BoxDecoration(
+                          decoration:  BoxDecoration(
                             shape: BoxShape.circle,
-                            color: AppColors.grayD9D9D9,
+                            color: _getCategoryColor(category),
                           ),
                         ),
                         SizedBox(width: 6.w),
@@ -119,4 +118,17 @@ class CollectionWidget extends StatelessWidget {
       ),
     );
   }
+  Color _getCategoryColor(String category) {
+    switch (category) {
+      case 'Rare':
+        return AppColors.green;
+      case 'Legendary':
+        return AppColors.yellowFED555;
+      case 'Epic':
+        return AppColors.violet;
+      default:
+        return AppColors.grayD9D9D9;
+    }
+  }
+
 }

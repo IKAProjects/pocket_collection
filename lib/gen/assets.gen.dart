@@ -16,6 +16,130 @@ class $AssetsPngGen {
   AssetGenImage get achievement1 =>
       const AssetGenImage('assets/png/achievement1.png');
 
+  /// File path: assets/png/achievement10.png
+  AssetGenImage get achievement10 =>
+      const AssetGenImage('assets/png/achievement10.png');
+
+  /// File path: assets/png/achievement11.png
+  AssetGenImage get achievement11 =>
+      const AssetGenImage('assets/png/achievement11.png');
+
+  /// File path: assets/png/achievement12.png
+  AssetGenImage get achievement12 =>
+      const AssetGenImage('assets/png/achievement12.png');
+
+  /// File path: assets/png/achievement13.png
+  AssetGenImage get achievement13 =>
+      const AssetGenImage('assets/png/achievement13.png');
+
+  /// File path: assets/png/achievement14.png
+  AssetGenImage get achievement14 =>
+      const AssetGenImage('assets/png/achievement14.png');
+
+  /// File path: assets/png/achievement15.png
+  AssetGenImage get achievement15 =>
+      const AssetGenImage('assets/png/achievement15.png');
+
+  /// File path: assets/png/achievement16.png
+  AssetGenImage get achievement16 =>
+      const AssetGenImage('assets/png/achievement16.png');
+
+  /// File path: assets/png/achievement17.png
+  AssetGenImage get achievement17 =>
+      const AssetGenImage('assets/png/achievement17.png');
+
+  /// File path: assets/png/achievement18.png
+  AssetGenImage get achievement18 =>
+      const AssetGenImage('assets/png/achievement18.png');
+
+  /// File path: assets/png/achievement19.png
+  AssetGenImage get achievement19 =>
+      const AssetGenImage('assets/png/achievement19.png');
+
+  /// File path: assets/png/achievement2.png
+  AssetGenImage get achievement2 =>
+      const AssetGenImage('assets/png/achievement2.png');
+
+  /// File path: assets/png/achievement20.png
+  AssetGenImage get achievement20 =>
+      const AssetGenImage('assets/png/achievement20.png');
+
+  /// File path: assets/png/achievement21.png
+  AssetGenImage get achievement21 =>
+      const AssetGenImage('assets/png/achievement21.png');
+
+  /// File path: assets/png/achievement22.png
+  AssetGenImage get achievement22 =>
+      const AssetGenImage('assets/png/achievement22.png');
+
+  /// File path: assets/png/achievement23.png
+  AssetGenImage get achievement23 =>
+      const AssetGenImage('assets/png/achievement23.png');
+
+  /// File path: assets/png/achievement24.png
+  AssetGenImage get achievement24 =>
+      const AssetGenImage('assets/png/achievement24.png');
+
+  /// File path: assets/png/achievement25.png
+  AssetGenImage get achievement25 =>
+      const AssetGenImage('assets/png/achievement25.png');
+
+  /// File path: assets/png/achievement26.png
+  AssetGenImage get achievement26 =>
+      const AssetGenImage('assets/png/achievement26.png');
+
+  /// File path: assets/png/achievement27.png
+  AssetGenImage get achievement27 =>
+      const AssetGenImage('assets/png/achievement27.png');
+
+  /// File path: assets/png/achievement28.png
+  AssetGenImage get achievement28 =>
+      const AssetGenImage('assets/png/achievement28.png');
+
+  /// File path: assets/png/achievement29.png
+  AssetGenImage get achievement29 =>
+      const AssetGenImage('assets/png/achievement29.png');
+
+  /// File path: assets/png/achievement3.png
+  AssetGenImage get achievement3 =>
+      const AssetGenImage('assets/png/achievement3.png');
+
+  /// File path: assets/png/achievement30.png
+  AssetGenImage get achievement30 =>
+      const AssetGenImage('assets/png/achievement30.png');
+
+  /// File path: assets/png/achievement31.png
+  AssetGenImage get achievement31 =>
+      const AssetGenImage('assets/png/achievement31.png');
+
+  /// File path: assets/png/achievement32.png
+  AssetGenImage get achievement32 =>
+      const AssetGenImage('assets/png/achievement32.png');
+
+  /// File path: assets/png/achievement4.png
+  AssetGenImage get achievement4 =>
+      const AssetGenImage('assets/png/achievement4.png');
+
+  /// File path: assets/png/achievement5.png
+  AssetGenImage get achievement5 =>
+      const AssetGenImage('assets/png/achievement5.png');
+
+  /// File path: assets/png/achievement6.png
+  AssetGenImage get achievement6 =>
+      const AssetGenImage('assets/png/achievement6.png');
+
+  /// File path: assets/png/achievement7.png
+  AssetGenImage get achievement7 =>
+      const AssetGenImage('assets/png/achievement7.png');
+
+  /// File path: assets/png/achievement8.png
+  AssetGenImage get achievement8 =>
+      const AssetGenImage('assets/png/achievement8.png');
+
+  /// File path: assets/png/achievement9.png
+  AssetGenImage get achievement9 =>
+      const AssetGenImage('assets/png/achievement9.png');
+
   /// File path: assets/png/americana.png
   AssetGenImage get americana =>
       const AssetGenImage('assets/png/americana.png');
@@ -108,6 +232,37 @@ class $AssetsPngGen {
   /// List of all assets
   List<AssetGenImage> get values => [
         achievement1,
+        achievement10,
+        achievement11,
+        achievement12,
+        achievement13,
+        achievement14,
+        achievement15,
+        achievement16,
+        achievement17,
+        achievement18,
+        achievement19,
+        achievement2,
+        achievement20,
+        achievement21,
+        achievement22,
+        achievement23,
+        achievement24,
+        achievement25,
+        achievement26,
+        achievement27,
+        achievement28,
+        achievement29,
+        achievement3,
+        achievement30,
+        achievement31,
+        achievement32,
+        achievement4,
+        achievement5,
+        achievement6,
+        achievement7,
+        achievement8,
+        achievement9,
         americana,
         antique,
         back,

@@ -3,11 +3,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pocket_collection/src/domain/models/expensive_item_model.dart';
+import 'package:pocket_collection/src/ui/screens/expensive_items/expensive_items_screen.dart';
 
 import '../../../../gen/assets.gen.dart';
 import '../../../infrastructure/resources/app_colors.dart';
 import '../../../infrastructure/resources/app_styles.dart';
-import '../../../infrastructure/routes/app_router.dart';
 import '../../widgets/app_button.dart';
 
 class ExpensiveItemsDetailsScreen extends StatelessWidget {
@@ -39,7 +39,7 @@ class ExpensiveItemsDetailsScreen extends StatelessWidget {
                   top: 50.h,
                   child: AppButton(
                     onPressed: () {
-                      context.goNamed(Routes.expensive);
+                      Navigator.pop(context);
                     },
                     child: Row(
                       children: [

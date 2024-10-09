@@ -4,18 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:go_router/go_router.dart';
 import 'package:pocket_collection/src/ui/screens/add_item/add_item_screen.dart';
 import 'package:pocket_collection/src/ui/screens/blocs/item_bloc/item_bloc.dart';
 import 'package:pocket_collection/src/ui/screens/colletion_items/widgets/item_widget.dart';
 import 'package:pocket_collection/src/ui/screens/colletion_items/widgets/sort_widget.dart';
+import 'package:pocket_collection/src/ui/screens/item_info/item_info_screen.dart';
 
 import '../../../../gen/assets.gen.dart';
 import '../../../domain/models/collection_model.dart';
 import '../../../domain/models/item_model.dart';
 import '../../../infrastructure/resources/app_colors.dart';
 import '../../../infrastructure/resources/app_styles.dart';
-import '../../../infrastructure/routes/app_router.dart';
 import '../../widgets/app_button.dart';
 import '../../widgets/empty_state_widget.dart';
 
@@ -51,7 +50,7 @@ class _CollectionItemsScreenState extends State<CollectionItemsScreen> {
         leading: Center(
           child: AppButton(
             onPressed: () {
-              context.goNamed(Routes.collections);
+              Navigator.pop(context);
             },
             child: SvgPicture.asset(
               Assets.svg.arrowBack,
@@ -87,13 +86,14 @@ class _CollectionItemsScreenState extends State<CollectionItemsScreen> {
       body: BlocBuilder<ItemBloc, ItemState>(
         builder: (context, state) {
           if (state is ItemLoading) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           } else if (state is ItemsLoaded) {
             final items = state.items;
 
-            final uniqueItems = items
-                .where((item) => item.collectionId == widget.collectionModel.id)
-                .toList();
+            final uniqueItems = items.where((item) {
+              return item.collectionId?.trim() ==
+                  widget.collectionModel.id.trim();
+            }).toList();
 
             if (uniqueItems.isEmpty) {
               return EmptyStateWidget(
@@ -107,13 +107,13 @@ class _CollectionItemsScreenState extends State<CollectionItemsScreen> {
               );
             }
 
-            if (all) {
-              filteredItems = uniqueItems;
-            } else {
-              final Set<String> uniqueIds = {};
-              filteredItems.clear();
+            filteredItems = [];
+            final Set<String> uniqueIds = {};
 
-              for (var item in uniqueItems) {
+            for (var item in uniqueItems) {
+              if (all) {
+                filteredItems.add(item);
+              } else {
                 if (common &&
                     item.type == 'Common' &&
                     !uniqueIds.contains(item.id)) {
@@ -137,6 +137,7 @@ class _CollectionItemsScreenState extends State<CollectionItemsScreen> {
                 }
               }
             }
+
             final totalPrice = filteredItems.fold<double>(
                 0.0, (sum, item) => sum + (item.price ?? 0));
 
@@ -236,7 +237,7 @@ class _CollectionItemsScreenState extends State<CollectionItemsScreen> {
                   padding:
                       EdgeInsets.symmetric(horizontal: 16.w, vertical: 24.h),
                   sliver: SliverGrid(
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       mainAxisSpacing: 16,
                       crossAxisSpacing: 16,
@@ -250,9 +251,14 @@ class _CollectionItemsScreenState extends State<CollectionItemsScreen> {
                           children: [
                             AppButton(
                               onPressed: () {
-                                context.goNamed(
-                                  Routes.itemInfo,
-                                  extra: item,
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ItemInfoScreen(
+                                      itemModel: item,
+                                      collectionModel: widget.collectionModel,
+                                    ),
+                                  ),
                                 );
                               },
                               child: ItemWidget(
@@ -280,7 +286,12 @@ class _CollectionItemsScreenState extends State<CollectionItemsScreen> {
       floatingActionButton: BlocBuilder<ItemBloc, ItemState>(
         builder: (context, state) {
           if (state is ItemsLoaded) {
-            if (state.items.isNotEmpty) {
+            final uniqueItems = state.items.where((item) {
+              return item.collectionId?.trim() ==
+                  widget.collectionModel.id.trim();
+            }).toList();
+
+            if (uniqueItems.isNotEmpty) {
               return AppButton(
                 onPressed: () {
                   _showAddItemBottomSheet(context);
@@ -336,6 +347,7 @@ class _CollectionItemsScreenState extends State<CollectionItemsScreen> {
       builder: (BuildContext context) {
         return AddItemScreen(
           collectionModel: widget.collectionModel,
+          onItemEdited: (bool isEdited) {},
         );
       },
     );
@@ -369,13 +381,20 @@ class _CollectionItemsScreenState extends State<CollectionItemsScreen> {
   }
 
   Future<void> _showMenuDialog(BuildContext context) async {
+
     return showModalBottomSheet<void>(
       context: context,
       barrierColor: AppColors.black.withOpacity(0.5),
       backgroundColor: Colors.transparent,
       builder: (BuildContext cont) {
         return SortWidget(
-          onSortSelected: (String sortType) {},
+          onSortSelected: (sortType, context) {
+            setState(() {
+              context.read<ItemBloc>().add(SortItems(sortType));
+            });
+
+            Navigator.pop(context);
+          },
         );
       },
     );

@@ -10,7 +10,7 @@ import '../../../widgets/app_button.dart';
 class SortWidget extends StatelessWidget {
   const SortWidget({super.key, required this.onSortSelected});
 
-  final Function(String) onSortSelected;
+  final Function(String, BuildContext) onSortSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -46,8 +46,8 @@ class SortWidget extends StatelessWidget {
                 SizedBox(height: 12.h),
                 AppButton(
                   onPressed: () {
-                    onSortSelected('newToOld');
-                    Navigator.of(context).pop();
+                    onSortSelected('newToOld', context);
+
                   },
                   child: Text(
                     "From new to old",
@@ -59,16 +59,15 @@ class SortWidget extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ),
                 ),
-                SizedBox(height: 17.h),
+                SizedBox(height: 14.h),
                 Divider(
                   color: const Color(0xFF3C3C43).withOpacity(0.9),
                   height: 0.5,
                 ),
-                SizedBox(height: 17.h),
+                SizedBox(height: 14.h),
                 AppButton(
                   onPressed: () {
-                    onSortSelected('oldToNew');
-                    Navigator.of(context).pop();
+                    onSortSelected('oldToNew', context);
                   },
                   child: Text(
                     "From old to new",
@@ -80,16 +79,15 @@ class SortWidget extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ),
                 ),
-                SizedBox(height: 17.h),
+                SizedBox(height: 14.h),
                 Divider(
                   color: const Color(0xFF3C3C43).withOpacity(0.9),
                   height: 0.5,
                 ),
-                SizedBox(height: 17.h),
+                SizedBox(height: 14.h),
                 AppButton(
                   onPressed: () {
-                    onSortSelected('A-Z');
-                    Navigator.of(context).pop();
+                    onSortSelected('A-Z', context);
                   },
                   child: Text(
                     "By alphabet A-Z",
@@ -101,16 +99,15 @@ class SortWidget extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ),
                 ),
-                SizedBox(height: 17.h),
+                SizedBox(height: 14.h),
                 Divider(
                   color: const Color(0xFF3C3C43).withOpacity(0.9),
                   height: 0.5,
                 ),
-                SizedBox(height: 17.h),
+                SizedBox(height: 14.h),
                 AppButton(
                   onPressed: () {
-                    onSortSelected('Z-A');
-                    Navigator.of(context).pop();
+                    onSortSelected('Z-A', context);
                   },
                   child: Text(
                     "By alphabet Z-A",
@@ -122,16 +119,15 @@ class SortWidget extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ),
                 ),
-                SizedBox(height: 17.h),
+                SizedBox(height: 14.h),
                 Divider(
                   color: const Color(0xFF3C3C43).withOpacity(0.9),
                   height: 0.5,
                 ),
-                SizedBox(height: 17.h),
+                SizedBox(height: 14.h),
                 AppButton(
                   onPressed: () {
-                    onSortSelected('HighToLow');
-                    Navigator.of(context).pop();
+                    onSortSelected('HighToLow', context);
                   },
                   child: Text(
                     "From high to low price",
@@ -143,16 +139,15 @@ class SortWidget extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ),
                 ),
-                SizedBox(height: 17.h),
+                SizedBox(height: 14.h),
                 Divider(
                   color: const Color(0xFF3C3C43).withOpacity(0.9),
                   height: 0.5,
                 ),
-                SizedBox(height: 17.h),
+                SizedBox(height: 14.h),
                 AppButton(
                   onPressed: () {
-                    onSortSelected('LowToHigh');
-                    Navigator.of(context).pop();
+                    onSortSelected('LowToHigh', context);
                   },
                   child: Text(
                     "From low to high price",

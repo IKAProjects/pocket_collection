@@ -2,22 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart';
 import 'package:pocket_collection/src/infrastructure/resources/app_colors.dart';
 import 'package:pocket_collection/src/infrastructure/resources/app_styles.dart';
 import 'package:pocket_collection/src/ui/screens/add_collection/add_collection_screen.dart';
 import 'package:pocket_collection/src/ui/screens/collections/widgets/collection_widget.dart';
+import 'package:pocket_collection/src/ui/screens/colletion_items/collection_items_screen.dart';
 import 'package:pocket_collection/src/ui/widgets/empty_state_widget.dart';
 import '../../../../gen/assets.gen.dart';
 import '../../../domain/models/collection_model.dart';
-import '../../../infrastructure/routes/app_router.dart';
 import '../../../infrastructure/utils/category_data.dart';
 import '../../widgets/app_button.dart';
 import '../blocs/collection_bloc/collection_bloc.dart';
 import '../blocs/item_bloc/item_bloc.dart';
 
 class CollectionsScreen extends StatefulWidget {
-  const CollectionsScreen({super.key});
+  const CollectionsScreen(
+      {super.key});
 
   @override
   State<CollectionsScreen> createState() => _CollectionsScreenState();
@@ -89,7 +89,8 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
                     if (state is CollectionLoading) {
                       return const Center(child: CircularProgressIndicator());
                     } else if (state is CollectionLoaded) {
-                      final collectionsByCategory = <String, List<CollectionModel>>{};
+                      final collectionsByCategory =
+                          <String, List<CollectionModel>>{};
 
                       for (var collection in state.collections) {
                         collectionsByCategory
@@ -99,9 +100,11 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
 
                       return ListView.separated(
                         itemCount: collectionsByCategory.keys.length,
-                        separatorBuilder: (context, index) => SizedBox(height: 16.h),
+                        separatorBuilder: (context, index) =>
+                            SizedBox(height: 16.h),
                         itemBuilder: (context, index) {
-                          final category = collectionsByCategory.keys.elementAt(index);
+                          final category =
+                              collectionsByCategory.keys.elementAt(index);
                           final collections = collectionsByCategory[category]!;
 
                           return Column(
@@ -119,7 +122,8 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
                                   Text(
                                     category,
                                     style: AppStyles.helper4.copyWith(
-                                        fontSize: 18.sp, fontWeight: FontWeight.bold),
+                                        fontSize: 18.sp,
+                                        fontWeight: FontWeight.bold),
                                   ),
                                 ],
                               ),
@@ -129,48 +133,61 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
                                 child: BlocBuilder<ItemBloc, ItemState>(
                                   builder: (context, itemState) {
                                     if (itemState is ItemLoading) {
-                                      return const Center(child: CircularProgressIndicator());
+                                      return const Center(
+                                          child: CircularProgressIndicator());
                                     } else if (itemState is ItemsLoaded) {
-                                      // Retrieve items from the ItemBloc state
                                       final items = itemState.items;
 
                                       return ListView.separated(
                                         scrollDirection: Axis.horizontal,
                                         itemCount: collections.length,
-                                        itemBuilder: (context, collectionIndex) {
-                                          final collection = collections[collectionIndex];
+                                        itemBuilder:
+                                            (context, collectionIndex) {
+                                          final collection =
+                                              collections[collectionIndex];
 
-                                          // Filter items based on collection ID
-                                          final collectionItems = items.where((item) =>
-                                          item.collectionId == collection.id).toList();
+                                          final collectionItems = items
+                                              .where((item) =>
+                                                  item.collectionId ==
+                                                  collection.id)
+                                              .toList();
 
-                                          final firstItem = collectionItems.isNotEmpty
-                                              ? collectionItems.first
-                                              : null;
+                                          final firstItem =
+                                              collectionItems.isNotEmpty
+                                                  ? collectionItems.first
+                                                  : null;
 
                                           return CollectionWidget(
                                             onTap: () {
-                                              context.goNamed(
-                                                Routes.collectionItems,
-                                                extra: collection,
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>  CollectionItemsScreen(collectionModel: collection),
+                                                ),
                                               );
                                             },
-                                            itemCount: collection.itemCount ?? 1,
+                                            itemCount:
+                                                collection.itemCount ?? 1,
                                             name: collection.collectionName,
-                                            category: firstItem?.type ?? 'Unknown',
-                                            image: firstItem?.imagePath ?? '',
-                                            price: firstItem?.price?.toInt() ?? 0,
+                                            category:
+                                                firstItem?.type ?? 'Common',
+                                            image: firstItem?.imagePath ??
+                                                Assets.png.vintage.path,
+                                            price:
+                                                firstItem?.price?.toInt() ?? 0,
                                           );
                                         },
-                                        separatorBuilder: (BuildContext context, int index) =>
-                                            SizedBox(width: 8.w),
+                                        separatorBuilder:
+                                            (BuildContext context, int index) =>
+                                                SizedBox(width: 8.w),
                                       );
                                     } else if (itemState is ItemError) {
                                       return Center(
-                                        child: Text('Failed to load items: ${itemState.message}'),
+                                        child: Text(
+                                            'Failed to load items: ${itemState.message}'),
                                       );
                                     }
-                                    return Container(); // Default empty container
+                                    return Container();
                                   },
                                 ),
                               ),
@@ -180,10 +197,11 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
                       );
                     } else if (state is CollectionError) {
                       return Center(
-                        child: Text('Failed to load collections: ${state.message}'),
+                        child: Text(
+                            'Failed to load collections: ${state.message}'),
                       );
                     }
-                    return Container(); // Default empty container
+                    return Container();
                   },
                 ),
               ),

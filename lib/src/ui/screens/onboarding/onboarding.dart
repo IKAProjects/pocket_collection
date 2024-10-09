@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pocket_collection/src/ui/screens/collections/collections_screen.dart';
 
 import '../../../infrastructure/resources/app_colors.dart';
 import '../../../infrastructure/resources/app_styles.dart';
-import '../../../infrastructure/routes/app_router.dart';
 import '../../../infrastructure/utils/box_assets.dart';
+import '../../widgets/app_bottom_bar.dart';
 import '../../widgets/app_button.dart';
 
 class Onboarding extends StatefulWidget {
@@ -72,13 +73,13 @@ class _OnboardingState extends State<Onboarding> {
                             boxAssets[i].text1,
                             style: AppStyles.helper1,
                           ),
-                          SizedBox(height: 8.h),
+                          SizedBox(height: 6.h),
                           Text(
                             boxAssets[i].text2,
                             style: AppStyles.helper2,
                             textAlign: TextAlign.start,
                           ),
-                          SizedBox(height: 12.h),
+                          SizedBox(height: 8.h),
                           AppButton(
                             onPressed: _nextPage,
                             child: Container(
@@ -117,8 +118,13 @@ class _OnboardingState extends State<Onboarding> {
         curve: Curves.easeIn,
       );
     } else {
-      context.goNamed(Routes.collections);
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const AppBottomBar(),
+        ),
+            (Route<dynamic> route) => false,
+      );
     }
   }
-
 }

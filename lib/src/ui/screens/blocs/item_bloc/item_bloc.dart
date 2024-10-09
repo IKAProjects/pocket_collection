@@ -9,6 +9,7 @@ part 'item_state.dart';
 
 class ItemBloc extends Bloc<ItemEvent, ItemState> {
   final ItemRepository itemRepository;
+  List<ItemModel> _items = [];
 
   ItemBloc(this.itemRepository) : super(ItemInitial()) {
     on<LoadItems>(_onLoadItems);
@@ -17,6 +18,7 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
     on<UpdateItem>(_onUpdateItem);
     on<LoadItemDetailEvent>(_loadItemDetail);
     on<SelectCategory>(_onSelectCategory);
+    on<SortItems>(_onSortItems);
   }
 
   Future<void> _loadItemDetail(
@@ -31,7 +33,7 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
         emit(ItemError('Item not found'));
       }
     } catch (e) {
-      emit(ItemError(e.toString()));
+      emit(ItemError('Failed to load item: ${e.toString()}'));
     }
   }
 
@@ -41,10 +43,10 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
       ) async {
     emit(ItemLoading());
     try {
-      final items = await itemRepository.getAllItems();
-      emit(ItemsLoaded(items));
+      _items = await itemRepository.getAllItems();
+      emit(ItemsLoaded(_items));
     } catch (e) {
-      emit(ItemError(e.toString()));
+      emit(ItemError('Failed to load items: ${e.toString()}'));
     }
   }
 
@@ -55,10 +57,9 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
     emit(ItemLoading());
     try {
       await itemRepository.addItem(event.item);
-      final items = await itemRepository.getAllItems();
-      emit(ItemsLoaded(items));
+      await _fetchItems(emit);
     } catch (e) {
-      emit(ItemError(e.toString()));
+      emit(ItemError('Failed to add item: ${e.toString()}'));
     }
   }
 
@@ -69,10 +70,9 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
     emit(ItemLoading());
     try {
       await itemRepository.deleteItem(event.itemId);
-      final items = await itemRepository.getAllItems();
-      emit(ItemsLoaded(items));
+      await _fetchItems(emit);
     } catch (e) {
-      emit(ItemError(e.toString()));
+      emit(ItemError('Failed to delete item: ${e.toString()}'));
     }
   }
 
@@ -83,14 +83,59 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
     emit(ItemLoading());
     try {
       await itemRepository.updateItem(event.item);
-      final items = await itemRepository.getAllItems();
-      emit(ItemsLoaded(items));
+      await _fetchItems(emit);
     } catch (e) {
-      emit(ItemError(e.toString()));
+      emit(ItemError('Failed to update item: ${e.toString()}'));
     }
+  }
+
+  Future<void> _fetchItems(Emitter<ItemState> emit) async {
+    _items = await itemRepository.getAllItems();
+    emit(ItemsLoaded(_items));
   }
 
   void _onSelectCategory(SelectCategory event, Emitter<ItemState> emit) {
     emit(CategorySelected(event.category));
+  }
+
+  void _onSortItems(SortItems event, Emitter<ItemState> emit) {
+    if (_items.isEmpty) {
+      emit(ItemsLoaded(_items));
+      return;
+    }
+
+    switch (event.sortType) {
+      case 'newToOld':
+        _items.sort((a, b) => _compareDates(b.createdDate, a.createdDate));
+        break;
+      case 'oldToNew':
+        _items.sort((a, b) => _compareDates(a.createdDate, b.createdDate));
+        break;
+      case 'A-Z':
+        _items.sort((a, b) => a.name.compareTo(b.name));
+        break;
+      case 'Z-A':
+        _items.sort((a, b) => b.name.compareTo(a.name));
+        break;
+      case 'HighToLow':
+        _items.sort((a, b) => (b.price ?? 0).compareTo(a.price ?? 0));
+        break;
+      case 'LowToHigh':
+        _items.sort((a, b) => (a.price ?? 0).compareTo(b.price ?? 0));
+        break;
+    }
+
+    emit(ItemsLoaded(_items));
+  }
+
+  int _compareDates(DateTime? dateA, DateTime? dateB) {
+    if (dateA == null && dateB == null) {
+      return 0;
+    } else if (dateA == null) {
+      return -1;
+    } else if (dateB == null) {
+      return 1;
+    }
+    return dateA.compareTo(dateB);
   }
 }

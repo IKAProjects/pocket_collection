@@ -13,8 +13,9 @@ class ItemLoading extends ItemState {}
 
 class ItemsLoaded extends ItemState {
   final List<ItemModel> items;
+  final String? sortType;
 
-  const ItemsLoaded(this.items);
+  const ItemsLoaded(this.items, {this.sortType});
 
   @override
   List<Object?> get props => [items];

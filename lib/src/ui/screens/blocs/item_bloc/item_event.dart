@@ -53,3 +53,12 @@ class SelectCategory extends ItemEvent {
   @override
   List<Object> get props => [category];
 }
+
+class SortItems extends ItemEvent {
+  final String sortType;
+
+  const SortItems(this.sortType);
+
+  @override
+  List<Object?> get props => [sortType];
+}

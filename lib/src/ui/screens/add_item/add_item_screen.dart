@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../../gen/assets.gen.dart';
@@ -17,10 +18,11 @@ import '../collections/widgets/custom_text_field.dart';
 
 class AddItemScreen extends StatefulWidget {
   const AddItemScreen(
-      {super.key,  this.collectionModel, this.itemModel});
+      {super.key,  this.collectionModel, this.itemModel,   required this.onItemEdited,});
 
   final CollectionModel? collectionModel;
   final ItemModel? itemModel;
+  final Function(bool isEdited) onItemEdited;
 
   @override
   State<AddItemScreen> createState() => _AddItemScreenState();
@@ -33,6 +35,8 @@ class _AddItemScreenState extends State<AddItemScreen> {
   late TextEditingController itemNumberController;
   late TextEditingController itemPriceController;
   String selectedCategory = '';
+  bool isFieldsValid = false;
+
 
   @override
   void initState() {
@@ -52,6 +56,21 @@ class _AddItemScreenState extends State<AddItemScreen> {
     if (widget.itemModel?.imagePath != null) {
       _imageFile = XFile(widget.itemModel!.imagePath!);
     }
+    _validateFields();
+  }
+
+  void _validateFields() {
+    final itemName = itemNameController.text;
+    final itemNumber = itemNumberController.text;
+    final categorySelected = selectedCategory;
+
+    // Условие для проверки, заполнены ли обязательные поля
+    isFieldsValid = itemName.isNotEmpty &&
+        itemNumber.isNotEmpty &&
+        int.tryParse(itemNumber) != null &&
+        categorySelected.isNotEmpty;
+
+    setState(() {}); // Обновление состояния
   }
 
   @override
@@ -104,8 +123,9 @@ class _AddItemScreenState extends State<AddItemScreen> {
                     borderRadius: BorderRadius.circular(16.r),
                     child: Image.file(
                       File(_imageFile!.path),
-                      fit: BoxFit.contain,
-                      height: 130,
+                      fit: BoxFit.cover,
+                      height: 130.h,
+                      width: 200.w,
                     ),
                   ),
                 )
@@ -150,8 +170,9 @@ class _AddItemScreenState extends State<AddItemScreen> {
                         setState(() {});
                       },
                       child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 10.w),
                         alignment: Alignment.center,
-                        width: 176.h,
+                        // width: 176.h,
                         height: 102.h,
                         decoration: BoxDecoration(
                           color: AppColors.gray2A2A2A,
@@ -243,26 +264,25 @@ class _AddItemScreenState extends State<AddItemScreen> {
                       context.read<ItemBloc>().add(UpdateItem(newItem));
                     } else {
                       context.read<ItemBloc>().add(AddItem(newItem));
+                      Navigator.pop(context);
                     }
-
-                    Navigator.pop(context);
-                  } else {
-                    print("Invalid item number");
-                  }
-                } else {
-                  print("Item name or category is missing");
+                    widget.onItemEdited(true);
+                  } 
                 }
               },
-            child: Container(
-              alignment: Alignment.center,
-              padding: EdgeInsets.symmetric(vertical: 14.h),
-              decoration: BoxDecoration(
-                color: AppColors.green,
-                borderRadius: BorderRadius.circular(12.r),
-              ),
-              child: Text(
-                widget.itemModel != null ? 'Update item' : 'Add item',
-                style: AppStyles.helper4.copyWith(color: Colors.black),
+            child: Opacity(
+              opacity: isFieldsValid ? 1.0 : 0.2,
+              child: Container(
+                alignment: Alignment.center,
+                padding: EdgeInsets.symmetric(vertical: 14.h),
+                decoration: BoxDecoration(
+                  color: AppColors.green,
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                child: Text(
+                  widget.itemModel != null ? 'Update item' : 'Add item',
+                  style: AppStyles.helper4.copyWith(color: Colors.black),
+                ),
               ),
             ),
           ),

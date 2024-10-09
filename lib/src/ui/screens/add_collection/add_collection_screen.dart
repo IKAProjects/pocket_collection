@@ -25,6 +25,31 @@ class _AddCollectionScreenState extends State<AddCollectionScreen> {
   final _collectionNameController = TextEditingController();
   final _itemCountController = TextEditingController();
 
+  bool _isButtonEnabled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _collectionNameController.addListener(_validateForm);
+    _itemCountController.addListener(_validateForm);
+  }
+
+  void _validateForm() {
+    setState(() {
+      _isButtonEnabled = _collectionNameController.text.isNotEmpty &&
+          _itemCountController.text.isNotEmpty &&
+          _selectedCategory != null &&
+          _selectedIcon != null;
+    });
+  }
+
+  @override
+  void dispose() {
+    _collectionNameController.dispose();
+    _itemCountController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -149,45 +174,51 @@ class _AddCollectionScreenState extends State<AddCollectionScreen> {
             ),
             const Spacer(),
             AppButton(
-              onPressed: () {
-                final collectionName = _collectionNameController.text;
-                final itemCount = _itemCountController.text.isNotEmpty
-                    ? int.tryParse(_itemCountController.text)
-                    : 0;
+              onPressed: _isButtonEnabled
+                  ? () {
+                      final collectionName = _collectionNameController.text;
+                      final itemCount = _itemCountController.text.isNotEmpty
+                          ? int.tryParse(_itemCountController.text)
+                          : 0;
 
-                final colId = DateTime.now().toIso8601String();
-                final newCollection = CollectionModel(
-                  category: _selectedCategory ?? 'Default Category',
-                  collectionName: collectionName,
-                  itemCount: itemCount,
-                  iconPath: _selectedIcon ?? Assets.svg.other,
-                  id: colId,
-                  items: [],
-                );
+                      final colId = DateTime.now().toIso8601String();
+                      final newCollection = CollectionModel(
+                        category: _selectedCategory ?? 'Default Category',
+                        collectionName: collectionName,
+                        itemCount: itemCount,
+                        iconPath: _selectedIcon ?? Assets.svg.other,
+                        id: colId,
+                        items: [],
+                      );
 
-                context
-                    .read<CollectionBloc>()
-                    .add(AddCollection(newCollection));
+                      context
+                          .read<CollectionBloc>()
+                          .add(AddCollection(newCollection));
 
-                Navigator.pop(context);
-              },
-              child: Container(
-                alignment: Alignment.center,
-                height: 50.h,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: AppColors.green,
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-                child: Text(
-                  'Create collection',
-                  style: AppStyles.helper4.copyWith(
-                    fontSize: 17.sp,
-                    color: Colors.black,
+                      Navigator.pop(context);
+                    }
+                  : null,
+              child: Opacity(
+                opacity: _isButtonEnabled ? 1.0 : 0.2,
+                child: Container(
+                  alignment: Alignment.center,
+                  height: 50.h,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: AppColors.green,
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  child: Text(
+                    'Create collection',
+                    style: AppStyles.helper4.copyWith(
+                      fontSize: 17.sp,
+                      color: Colors.black,
+                    ),
                   ),
                 ),
               ),
             ),
+            SizedBox(height: 30.h),
           ],
         ),
       ),
