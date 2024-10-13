@@ -64,13 +64,12 @@ class _AddItemScreenState extends State<AddItemScreen> {
     final itemNumber = itemNumberController.text;
     final categorySelected = selectedCategory;
 
-    // Условие для проверки, заполнены ли обязательные поля
     isFieldsValid = itemName.isNotEmpty &&
         itemNumber.isNotEmpty &&
         int.tryParse(itemNumber) != null &&
         categorySelected.isNotEmpty;
 
-    setState(() {}); // Обновление состояния
+    setState(() {});
   }
 
   @override
@@ -114,89 +113,88 @@ class _AddItemScreenState extends State<AddItemScreen> {
           SizedBox(height: 8.h),
           _imageFile != null
               ? AppButton(
-                  onPressed: () async {
-                    _imageFile =
-                        await _picker.pickImage(source: ImageSource.gallery);
-                    setState(() {});
-                  },
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(16.r),
-                    child: Image.file(
-                      File(_imageFile!.path),
-                      fit: BoxFit.cover,
-                      height: 130.h,
-                      width: 200.w,
-                    ),
-                  ),
-                )
+            onPressed: () async {
+              _imageFile =
+              await _picker.pickImage(source: ImageSource.gallery);
+              setState(() {});
+            },
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16.r),
+              child: Image.file(
+                File(_imageFile!.path),
+                fit: BoxFit.cover,
+                height: 130.h,
+                width: 200.w,
+              ),
+            ),
+          )
               : Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    AppButton(
-                      onPressed: () async {
-                        _imageFile =
-                            await _picker.pickImage(source: ImageSource.camera);
-                        setState(() {});
-                      },
-                      child: Container(
-                        alignment: Alignment.center,
-                        width: 176.w,
-                        height: 102.h,
-                        decoration: BoxDecoration(
-                          color: AppColors.gray2A2A2A,
-                          borderRadius: BorderRadius.circular(12.r),
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SvgPicture.asset(
-                              Assets.svg.camera,
-                              fit: BoxFit.contain,
-                              width: 24.w,
-                              height: 24.h,
-                            ),
-                            Text(
-                              'Take photo',
-                              style: AppStyles.helper2,
-                            ),
-                          ],
-                        ),
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              AppButton(
+                onPressed: () async {
+                  _imageFile =
+                  await _picker.pickImage(source: ImageSource.camera);
+                  setState(() {});
+                },
+                child: Container(
+                  alignment: Alignment.center,
+                  width: 176.w,
+                  height: 102.h,
+                  decoration: BoxDecoration(
+                    color: AppColors.gray2A2A2A,
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SvgPicture.asset(
+                        Assets.svg.camera,
+                        fit: BoxFit.contain,
+                        width: 24.w,
+                        height: 24.h,
                       ),
-                    ),
-                    AppButton(
-                      onPressed: () async {
-                        _imageFile = await _picker.pickImage(
-                            source: ImageSource.gallery);
-                        setState(() {});
-                      },
-                      child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10.w),
-                        alignment: Alignment.center,
-                        // width: 176.h,
-                        height: 102.h,
-                        decoration: BoxDecoration(
-                          color: AppColors.gray2A2A2A,
-                          borderRadius: BorderRadius.circular(12.r),
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SvgPicture.asset(
-                              Assets.svg.gallery,
-                              fit: BoxFit.contain,
-                              width: 24.w,
-                              height: 24.h,
-                            ),
-                            Text(
-                              'Select from gallery',
-                              style: AppStyles.helper2,
-                            ),
-                          ],
-                        ),
+                      Text(
+                        'Take photo',
+                        style: AppStyles.helper2,
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
+              ),
+              AppButton(
+                onPressed: () async {
+                  _imageFile = await _picker.pickImage(
+                      source: ImageSource.gallery);
+                  setState(() {});
+                },
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 10.w),
+                  alignment: Alignment.center,
+                  height: 102.h,
+                  decoration: BoxDecoration(
+                    color: AppColors.gray2A2A2A,
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SvgPicture.asset(
+                        Assets.svg.gallery,
+                        fit: BoxFit.contain,
+                        width: 24.w,
+                        height: 24.h,
+                      ),
+                      Text(
+                        'Select from gallery',
+                        style: AppStyles.helper2,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
           SizedBox(height: 16.h),
           Text(
             'Item name',
@@ -206,6 +204,9 @@ class _AddItemScreenState extends State<AddItemScreen> {
           CustomTextField(
             controller: itemNameController,
             hint: 'For example - Memoriable collection',
+            onChanged: (val) {
+              _validateFields();
+            },
           ),
           SizedBox(height: 16.h),
           Text(
@@ -216,6 +217,9 @@ class _AddItemScreenState extends State<AddItemScreen> {
           CustomTextField(
             controller: itemNumberController,
             hint: 'For example - 34',
+            onChanged: (val) {
+              _validateFields();
+            },
           ),
           SizedBox(height: 16.h),
           Row(
@@ -235,41 +239,45 @@ class _AddItemScreenState extends State<AddItemScreen> {
           CustomTextField(
             controller: itemPriceController,
             hint: 'For example - 34',
+
           ),
           SizedBox(height: 16.h),
           _buildCategorySelection(context),
           SizedBox(height: 12.h),
           AppButton(
-              onPressed: () {
-                final itemName = itemNameController.text;
-                final itemNumber = itemNumberController.text;
-                final itemPrice = itemPriceController.text;
+            onPressed: () {
+              final itemName = itemNameController.text;
+              final itemNumber = itemNumberController.text;
+              final itemPrice = itemPriceController.text;
 
-                if (itemName.isNotEmpty && selectedCategory.isNotEmpty) {
-                  if (itemNumber.isNotEmpty && int.tryParse(itemNumber) != null) {
-                    final itemId = widget.itemModel?.id ?? DateTime.now().toIso8601String();
+              if (itemName.isNotEmpty && selectedCategory.isNotEmpty) {
+                if (itemNumber.isNotEmpty &&
+                    int.tryParse(itemNumber) != null) {
+                  final itemId = widget.itemModel?.id ??
+                      DateTime.now().toIso8601String();
 
-                    final newItem = ItemModel(
-                      name: itemName,
-                      number: int.tryParse(itemNumber)!,
-                      price: double.tryParse(itemPrice) ?? 0.0,
-                      type: selectedCategory,
-                      imagePath: _imageFile?.path,
-                      id: itemId,
-                      collectionId: widget.collectionModel?.id,
-                      createdDate: widget.itemModel?.createdDate ?? DateTime.now(),
-                    );
+                  final newItem = ItemModel(
+                    name: itemName,
+                    number: int.tryParse(itemNumber)!,
+                    price: double.tryParse(itemPrice) ?? 0.0,
+                    type: selectedCategory,
+                    imagePath: _imageFile?.path,
+                    id: itemId,
+                    collectionId: widget.collectionModel?.id,
+                    createdDate: widget.itemModel?.createdDate ??
+                        DateTime.now(),
+                  );
 
-                    if (widget.itemModel != null) {
-                      context.read<ItemBloc>().add(UpdateItem(newItem));
-                    } else {
-                      context.read<ItemBloc>().add(AddItem(newItem));
-                      Navigator.pop(context);
-                    }
-                    widget.onItemEdited(true);
-                  } 
+                  if (widget.itemModel != null) {
+                    context.read<ItemBloc>().add(UpdateItem(newItem));
+                  } else {
+                    context.read<ItemBloc>().add(AddItem(newItem));
+                    Navigator.pop(context);
+                  }
+                  widget.onItemEdited(true);
                 }
-              },
+              }
+            },
             child: Opacity(
               opacity: isFieldsValid ? 1.0 : 0.2,
               child: Container(
@@ -305,8 +313,10 @@ class _AddItemScreenState extends State<AddItemScreen> {
             onPressed: () {
               setState(() {
                 selectedCategory = category;
+                _validateFields();
               });
             },
+
             child: Container(
               margin: EdgeInsets.only(right: 8.w),
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),

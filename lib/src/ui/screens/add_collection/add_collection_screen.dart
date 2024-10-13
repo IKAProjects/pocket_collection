@@ -79,12 +79,13 @@ class _AddCollectionScreenState extends State<AddCollectionScreen> {
                 ],
               ),
             ),
+            // Title
             Text(
               'Add new collection',
               style: AppStyles.helper1,
             ),
             SizedBox(height: 24.h),
-            // Display the selected category
+
             AppButton(
               onPressed: () {
                 _showCategoryBottomSheet(context);
@@ -101,19 +102,19 @@ class _AddCollectionScreenState extends State<AddCollectionScreen> {
                         borderRadius: BorderRadius.circular(16.r),
                         color: AppColors.gray2A2A2A,
                       ),
-                      child: _selectedIcon != null
+                      child: (_selectedIcon != null)
                           ? SvgPicture.asset(
-                              _selectedIcon!,
-                              fit: BoxFit.contain,
-                              width: 32.w,
-                              height: 32.h,
-                            )
+                        _selectedIcon!,
+                        fit: BoxFit.contain,
+                        width: 32.w,
+                        height: 32.h,
+                      )
                           : SvgPicture.asset(
-                              Assets.svg.handbag,
-                              fit: BoxFit.contain,
-                              width: 32.w,
-                              height: 32.h,
-                            ),
+                        Assets.svg.handbag,
+                        fit: BoxFit.contain,
+                        width: 32.w,
+                        height: 32.h,
+                      ),
                     ),
                     SizedBox(width: 16.w),
                     Column(
@@ -140,9 +141,11 @@ class _AddCollectionScreenState extends State<AddCollectionScreen> {
                     ),
                   ],
                 ),
-              ),
+              )
+              ,
             ),
             SizedBox(height: 24.h),
+
             Text(
               'Collection name',
               style: AppStyles.helper2,
@@ -151,8 +154,12 @@ class _AddCollectionScreenState extends State<AddCollectionScreen> {
             CustomTextField(
               controller: _collectionNameController,
               hint: 'For example - Memoriable collection',
+              onChanged: (val) {
+                _validateForm();
+              },
             ),
             SizedBox(height: 24.h),
+
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -162,8 +169,7 @@ class _AddCollectionScreenState extends State<AddCollectionScreen> {
                 ),
                 Text(
                   'Optional',
-                  style:
-                      AppStyles.helper2.copyWith(color: AppColors.gray8E8E93),
+                  style: AppStyles.helper2.copyWith(color: AppColors.gray8E8E93),
                 ),
               ],
             ),
@@ -171,32 +177,37 @@ class _AddCollectionScreenState extends State<AddCollectionScreen> {
             CustomTextField(
               controller: _itemCountController,
               hint: 'For example - 34',
+              onChanged: (val) {
+                _validateForm();
+              },
             ),
+
             const Spacer(),
+
             AppButton(
               onPressed: _isButtonEnabled
                   ? () {
-                      final collectionName = _collectionNameController.text;
-                      final itemCount = _itemCountController.text.isNotEmpty
-                          ? int.tryParse(_itemCountController.text)
-                          : 0;
+                final collectionName = _collectionNameController.text;
+                final itemCount = _itemCountController.text.isNotEmpty
+                    ? int.tryParse(_itemCountController.text)
+                    : 0;
 
-                      final colId = DateTime.now().toIso8601String();
-                      final newCollection = CollectionModel(
-                        category: _selectedCategory ?? 'Default Category',
-                        collectionName: collectionName,
-                        itemCount: itemCount,
-                        iconPath: _selectedIcon ?? Assets.svg.other,
-                        id: colId,
-                        items: [],
-                      );
+                final colId = DateTime.now().toIso8601String();
+                final newCollection = CollectionModel(
+                  category: _selectedCategory ?? 'Default Category',
+                  collectionName: collectionName,
+                  itemCount: itemCount,
+                  iconPath: _selectedIcon ?? Assets.svg.other,
+                  id: colId,
+                  items: [],
+                );
 
-                      context
-                          .read<CollectionBloc>()
-                          .add(AddCollection(newCollection));
+                context
+                    .read<CollectionBloc>()
+                    .add(AddCollection(newCollection));
 
-                      Navigator.pop(context);
-                    }
+                Navigator.pop(context);
+              }
                   : null,
               child: Opacity(
                 opacity: _isButtonEnabled ? 1.0 : 0.2,
@@ -272,6 +283,7 @@ class _AddCollectionScreenState extends State<AddCollectionScreen> {
                         setState(() {
                           _selectedCategory = data.category;
                           _selectedIcon = data.icon;
+                          _validateForm();
                         });
                         Navigator.pop(context);
                       },
@@ -297,8 +309,7 @@ class _AddCollectionScreenState extends State<AddCollectionScreen> {
                             SizedBox(width: 16.w),
                             Text(
                               data.category,
-                              style:
-                                  AppStyles.helper4.copyWith(fontSize: 17.sp),
+                              style: AppStyles.helper4.copyWith(fontSize: 17.sp),
                             ),
                             const Spacer(),
                             SvgPicture.asset(
