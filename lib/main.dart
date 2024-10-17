@@ -7,11 +7,13 @@ import 'package:pocket_collection/src/domain/models/collection_model.dart';
 import 'package:pocket_collection/src/domain/models/item_model.dart';
 import 'app.dart';
 import 'di.dart';
+import 'src/domain/models/achievement_model.dart';
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Hive.registerAdapter(CollectionModelAdapter());
   Hive.registerAdapter(ItemModelAdapter());
+  Hive.registerAdapter(AchievementModelAdapter());
   setUpDependencies();
 
   runApp(

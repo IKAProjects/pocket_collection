@@ -4,18 +4,62 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:pocket_collection/src/infrastructure/utils/category_data.dart';
 
-import '../../../domain/models/achevement_model.dart';
+import '../../../../di.dart';
+import '../../../data/achievement_repository.dart';
+import '../../../domain/models/achievement_model.dart';
 import '../../../domain/models/collection_model.dart';
 import '../../../infrastructure/resources/app_colors.dart';
 import '../../../infrastructure/resources/app_styles.dart';
+import '../../../infrastructure/services/prefs.dart';
 import '../../../infrastructure/utils/achievemnt_data.dart';
 import '../../widgets/app_button.dart';
 import '../blocs/collection_bloc/collection_bloc.dart';
 import '../blocs/item_bloc/item_bloc.dart';
 
-class AchievementsScreen extends StatelessWidget {
+class AchievementsScreen extends StatefulWidget {
   const AchievementsScreen({super.key});
 
+  @override
+  State<AchievementsScreen> createState() => _AchievementsScreenState();
+}
+
+class _AchievementsScreenState extends State<AchievementsScreen> {
+  late final AchievementRepository _achievementRepository;
+  @override
+  void initState() {
+    super.initState();
+    _achievementRepository = getIt<AchievementRepository>();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkAndShowAchievements();
+    });
+  }
+
+
+  void _checkAndShowAchievements() async {
+    final collectionBlocState = context.read<CollectionBloc>().state;
+    final itemBlocState = context.read<ItemBloc>().state;
+
+    if (collectionBlocState is CollectionLoaded && itemBlocState is ItemsLoaded) {
+      List<CollectionModel> collections = collectionBlocState.collections;
+      int itemCount = itemBlocState.items.length;
+      DateTime? lastItemDate;
+
+      if (itemBlocState.items.isNotEmpty) {
+        lastItemDate = itemBlocState.items.last.createdDate;
+      }
+
+      for (int index = 0; index < achievementData.length; index++) {
+        if (achievementData[index].isUnlocked) continue;
+
+        bool isUnlocked = await _isAchievementUnlocked(index, collections, itemCount, lastItemDate);
+        if (isUnlocked) {
+          achievementData[index].isUnlocked = true;
+          achievementData[index].dateTime = DateTime.now();
+          _showAchievementBottomSheet(context, achievementData[index]);
+        }
+      }
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,13 +81,8 @@ class AchievementsScreen extends StatelessWidget {
                 builder: (context, collectionState) {
                   return BlocBuilder<ItemBloc, ItemState>(
                     builder: (context, itemState) {
-                      int collectionCount = 0;
                       int itemCount = 0;
                       DateTime? lastItemDate;
-
-                      if (collectionState is CollectionLoaded) {
-                        collectionCount = collectionState.collections.length;
-                      }
 
                       if (itemState is ItemsLoaded) {
                         itemCount = itemState.items.length;
@@ -69,51 +108,55 @@ class AchievementsScreen extends StatelessWidget {
                             collections = collectionState.collections;
                           }
 
-                          bool isUnlocked = _isAchievementUnlocked(
-                              index, collections, itemCount, lastItemDate);
+                          return FutureBuilder<bool>(
+                            future: _isAchievementUnlocked(index, collections, itemCount, lastItemDate),
+                            builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                return Center(child: CircularProgressIndicator());
+                              }
 
-                          return AppButton(
-                            onPressed: isUnlocked
-                                ? () {
-                                    _showAchievementBottomSheet(
-                                        context, achievement);
-                                  }
-                                : null,
-                            child: Column(
-                              children: [
-                                Image.asset(
-                                  achievement.image,
-                                  fit: BoxFit.contain,
-                                  width: 104.w,
-                                  height: 104.h,
-                                  color: isUnlocked
-                                      ? null
-                                      : const Color(0xFF131313),
+                              bool isUnlocked = snapshot.data ?? false;
+
+                              return AppButton(
+                                onPressed: isUnlocked
+                                    ? () {
+                                  _showAchievementBottomSheet(context, achievement);
+                                }
+                                    : null,
+                                child: Column(
+                                  children: [
+                                    Image.asset(
+                                      achievement.image,
+                                      fit: BoxFit.contain,
+                                      width: 104.w,
+                                      height: 104.h,
+                                      color: isUnlocked ? null : const Color(0xFF131313),
+                                    ),
+                                    SizedBox(height: 6.h),
+                                    if (isUnlocked)
+                                      Container(
+                                        padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 3.h),
+                                        alignment: Alignment.center,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(6.r),
+                                          color: AppColors.gray1D1D1F,
+                                        ),
+                                        child: Text(
+                                          DateFormat('dd MMM yyyy').format(achievement.dateTime!),
+
+                                          style: AppStyles.helper3,
+                                        ),
+                                      ),
+                                    SizedBox(height: 6.h),
+                                    Text(
+                                      achievement.name,
+                                      style: AppStyles.helper4.copyWith(fontSize: 12.sp),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
                                 ),
-                                SizedBox(height: 6.h),
-                                Container(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 5.w, vertical: 3.h),
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(6.r),
-                                    color: AppColors.gray1D1D1F,
-                                  ),
-                                  child: Text(
-                                    DateFormat('dd MMM yyyy')
-                                        .format(achievement.dateTime),
-                                    style: AppStyles.helper3,
-                                  ),
-                                ),
-                                SizedBox(height: 6.h),
-                                Text(
-                                  achievement.name,
-                                  style: AppStyles.helper4
-                                      .copyWith(fontSize: 12.sp),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ],
-                            ),
+                              );
+                            },
                           );
                         },
                       );
@@ -128,129 +171,128 @@ class AchievementsScreen extends StatelessWidget {
     );
   }
 
-  bool _isAchievementUnlocked(int index, List<CollectionModel> collections,
-      int itemCount, DateTime? lastItemDate) {
-    if (index == 0 && collections.length >= 1) {
-      return true;
-    } else if (index == 1 && collections.length >= 3) {
-      return true;
-    } else if (index == 2 && collections.length >= 5) {
-      return true;
-    } else if (index == 3 && collections.length >= 10) {
-      return true;
-    } else if (index == 4 && collections.length >= 25) {
-      return true;
-    } else if (index == 5 && itemCount >= 10) {
-      return true;
-    } else if (index == 6 && itemCount >= 30) {
-      return true;
-    } else if (index == 7 && itemCount >= 50) {
-      return true;
-    } else if (index == 8 && itemCount >= 75) {
-      return true;
-    } else if (index == 9 && itemCount >= 100) {
-      return true;
-    } else if (index == 10 && itemCount >= 250) {
-      return true;
-    } else if (index == 11 && itemCount >= 500) {
-      return true;
-    } else if (index == 12 && itemCount >= 1000) {
-      return true;
-    } else if (index == 13 && lastItemDate != null) {
-      final currentDate = DateTime.now();
-      return (currentDate.isAfter(lastItemDate.add(Duration(days: 7))));
-    } else if (index == 14) {
-      final uniqueCollectionIds =
-          collections.map((collection) => collection.id).toSet();
-      return uniqueCollectionIds.length >= 3;
-    } else if (index == 15) {
-      final uniqueCollectionIds =
-          collections.map((collection) => collection.id).toSet();
-      return uniqueCollectionIds.length >= 5;
-    } else if (index == 16) {
-      final uniqueCollectionIds =
-          collections.map((collection) => collection.id).toSet();
-      return uniqueCollectionIds.length >= 10;
-    } else if (index == 17) {
-      final uniqueCollectionIds =
-          collections.map((collection) => collection.id).toSet();
-      return uniqueCollectionIds.length >= 1;
-    } else if (index == 18) {
-      final uniqueCollectionIds =
-          collections.map((collection) => collection.id).toSet();
-      return uniqueCollectionIds.length >= 3;
-    } else if (index == 19) {
-      final createdCategoryIds =
-          collections.map((collection) => collection.id).toSet();
-      return categoryData
-          .every((categoryId) => createdCategoryIds.contains(categoryId));
-    } else if (index == 20) {
-      int rareCollectionCount = collections
-          .where((collection) => collection.category == 'Rare')
-          .length;
-      return rareCollectionCount >= 100;
-    } else if (index == 21) {
-      int epicCollectionCount = collections
-          .where((collection) => collection.category == 'Epic')
-          .length;
-      return epicCollectionCount >= 50;
-    } else if (index == 22) {
-      int legendaryCollectionCount = collections
-          .where((collection) => collection.category == 'Legendary')
-          .length;
-      return legendaryCollectionCount >= 10;
-    } else if (index == 23) {
-      int handbagCollectionCount = collections
-          .where((collection) => collection.category == 'Handbag')
-          .length;
-      return handbagCollectionCount >= 1;
-    } else if (index == 24) {
-      int handbagCollectionCount = collections
-          .where((collection) => collection.category == 'Handbag')
-          .length;
-      return handbagCollectionCount >= 5;
-    } else if (index == 25) {
-      int handbagCollectionCount = collections
-          .where((collection) => collection.category == 'Handbag')
-          .length;
-      return handbagCollectionCount >= 20;
-    } else if (index == 26) {
-      int handbagCollectionCount = collections
-          .where((collection) => collection.category == 'Handbag')
-          .length;
-      return handbagCollectionCount >= 40;
-    } else if (index == 27) {
-      int handbagCollectionCount = collections
-          .where((collection) => collection.category == 'Handbag')
-          .length;
-      return handbagCollectionCount >= 80;
-    } else if (index == 28) {
-      bool hasCoinsCollection =
-          collections.any((collection) => collection.category == 'Coins');
-      bool hasCurrencyCollection =
-          collections.any((collection) => collection.category == 'Currency');
-      return hasCoinsCollection && hasCurrencyCollection;
-    } else if (index == 29) {
-      bool hasBooksCollection =
-          collections.any((collection) => collection.category == 'Books');
-      bool hasComicsCollection =
-          collections.any((collection) => collection.category == 'Comics');
-      return hasBooksCollection && hasComicsCollection;
-    } else if (index == 30) {
-      bool hasActionFiguresCollection = collections
-          .any((collection) => collection.category == 'Action Figures');
-      bool hasToyCarsCollection =
-          collections.any((collection) => collection.category == 'Toy Cars');
-      return hasActionFiguresCollection && hasToyCarsCollection;
-    } else if (index == 31) {
-      bool hasVinylRecordsCollection = collections
-          .any((collection) => collection.category == 'Vinyl Records');
-      bool hasMusicInstrumentsCollection = collections
-          .any((collection) => collection.category == 'Music Instruments');
-      return hasVinylRecordsCollection && hasMusicInstrumentsCollection;
+  Future<bool> _isAchievementUnlocked(int index, List<CollectionModel> collections,
+      int itemCount, DateTime? lastItemDate) async {
+    bool unlocked = false;
+    print("Checking achievement $index: collections length = ${collections.length}, itemCount = $itemCount");
+
+    switch (index) {
+      case 0:
+        unlocked = collections.length >= 1;
+        break;
+      case 1:
+        unlocked = collections.length >= 3;
+        break;
+      case 2:
+        unlocked = collections.length >= 5;
+        break;
+      case 3:
+        unlocked = collections.length >= 10;
+        break;
+      case 4:
+        unlocked = collections.length >= 25;
+        break;
+      case 5:
+        unlocked = itemCount >= 10;
+        break;
+      case 6:
+        unlocked = itemCount >= 30;
+        break;
+      case 7:
+        unlocked = itemCount >= 50;
+        break;
+      case 8:
+        unlocked = itemCount >= 75;
+        break;
+      case 9:
+        unlocked = itemCount >= 100;
+        break;
+      case 10:
+        unlocked = itemCount >= 250;
+        break;
+      case 11:
+        unlocked = itemCount >= 500;
+        break;
+      case 12:
+        unlocked = itemCount >= 1000;
+        break;
+      case 13:
+        final firstLaunchDate = await Prefs.getFirstLaunchDate();
+        if (firstLaunchDate != null) {
+          final achievementUnlockDate = firstLaunchDate.add(Duration(days: 7));
+          unlocked = DateTime.now().isAfter(achievementUnlockDate);
+        }
+        break;
+      case 14:
+        unlocked = collections.map((collection) => collection.id).toSet().length >= 3;
+        break;
+      case 15:
+        unlocked = collections.map((collection) => collection.id).toSet().length >= 5;
+        break;
+      case 16:
+        unlocked = collections.map((collection) => collection.id).toSet().length >= 10;
+        break;
+      case 17:
+        unlocked = collections.map((collection) => collection.id).toSet().length >= 1;
+        break;
+      case 18:
+        unlocked = collections.map((collection) => collection.id).toSet().length >= 3;
+        break;
+      case 19:
+        final createdCategoryIds = collections.map((collection) => collection.id).toSet();
+        unlocked = categoryData.every((categoryId) => createdCategoryIds.contains(categoryId));
+        break;
+      case 20:
+        unlocked = collections.where((collection) => collection.category == 'Rare').length >= 100;
+        break;
+      case 21:
+        unlocked = collections.where((collection) => collection.category == 'Epic').length >= 50;
+        break;
+      case 22:
+        unlocked = collections.where((collection) => collection.category == 'Legendary').length >= 10;
+        break;
+      case 23:
+        unlocked = collections.where((collection) => collection.category == 'Handbag').length >= 1;
+        break;
+      case 24:
+        unlocked = collections.where((collection) => collection.category == 'Handbag').length >= 5;
+        break;
+      case 25:
+        unlocked = collections.where((collection) => collection.category == 'Handbag').length >= 20;
+        break;
+      case 26:
+        unlocked = collections.where((collection) => collection.category == 'Handbag').length >= 40;
+        break;
+      case 27:
+        unlocked = collections.where((collection) => collection.category == 'Handbag').length >= 80;
+        break;
+      case 28:
+        unlocked = collections.any((collection) => collection.category == 'Coins') &&
+            collections.any((collection) => collection.category == 'Currency');
+        break;
+      case 29:
+        unlocked = collections.any((collection) => collection.category == 'Books') &&
+            collections.any((collection) => collection.category == 'Comics');
+        break;
+      case 30:
+        unlocked = collections.any((collection) => collection.category == 'Action Figures') &&
+            collections.any((collection) => collection.category == 'Toy Cars');
+        break;
+      case 31:
+        unlocked = collections.any((collection) => collection.category == 'Vinyl Records') &&
+            collections.any((collection) => collection.category == 'Music Instruments');
+        break;
     }
 
-    return false;
+    if (unlocked && !achievementData[index].isUnlocked) {
+      achievementData[index].isUnlocked = true;
+      achievementData[index].dateTime = DateTime.now();
+
+
+      _achievementRepository.saveAchievement(achievementData[index]);
+    }
+
+    return unlocked;
   }
 
   Future<void> _showAchievementBottomSheet(
@@ -291,17 +333,20 @@ class AchievementsScreen extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: 24.h),
-              Container(
-                alignment: Alignment.center,
-                width: double.infinity,
-                height: 50.h,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12.r),
-                  color: Colors.black,
-                ),
-                child: Text(
-                  'Close',
-                  style: AppStyles.helper4.copyWith(fontSize: 17.sp),
+              AppButton(
+                onPressed: ()=>  Navigator.of(context).pop(),
+                child: Container(
+                  alignment: Alignment.center,
+                  width: double.infinity,
+                  height: 50.h,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12.r),
+                    color: Colors.black,
+                  ),
+                  child: Text(
+                    'Close',
+                    style: AppStyles.helper4.copyWith(fontSize: 17.sp),
+                  ),
                 ),
               )
             ],
