@@ -1,23 +1,32 @@
-
+import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Prefs {
-  static const String firstLaunchDateKey = 'firstLaunchDate';
+  SharedPreferences prefs = GetIt.I<SharedPreferences>();
 
-  static Future<void> saveFirstLaunchDate() async {
-    final prefs = await SharedPreferences.getInstance();
-    if (!prefs.containsKey(firstLaunchDateKey)) {
-      final now = DateTime.now();
-      await prefs.setString(firstLaunchDateKey, now.toIso8601String());
-    }
+  static const String _firstLaunchDateKey = 'firstLaunchDate';
+  static const String _firstDateKey = 'firstDate';
+
+  void saveFirstLaunchDate() async {
+    await prefs.setString(_firstLaunchDateKey, DateTime.now().toString());
   }
 
-  static Future<DateTime?> getFirstLaunchDate() async {
-    final prefs = await SharedPreferences.getInstance();
-    final dateString = prefs.getString(firstLaunchDateKey);
-    if (dateString != null) {
-      return DateTime.parse(dateString);
+  DateTime getFirstLaunchDate() {
+    String firstLaunchDateString = prefs.getString(_firstLaunchDateKey) ?? '';
+    DateTime? firstLaunchDate;
+
+    if (firstLaunchDateString.isNotEmpty) {
+      firstLaunchDate = DateTime.parse(firstLaunchDateString);
     }
-    return null;
+    return firstLaunchDate ?? DateTime.now();
   }
+
+  void saveFirstDate(bool value) async {
+    await prefs.setBool(_firstDateKey, value);
+  }
+
+  bool getFirstDate() {
+    return prefs.getBool(_firstDateKey) ?? false;
+  }
+
 }
